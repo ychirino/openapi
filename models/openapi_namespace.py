@@ -4,9 +4,16 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 import collections
 import urllib
-import urlparse
-import uuid
+import time
+import datetime
+from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
+
+import uuid
 from odoo import models, fields, api
 from ..controllers import pinguin
 
@@ -14,6 +21,7 @@ from ..controllers import pinguin
 class Namespace(models.Model):
 
     _name = 'openapi.namespace'
+    _description = 'Openapi Namespace'
 
     active = fields.Boolean('Active', default=True)
     name = fields.Char(
@@ -65,7 +73,7 @@ class Namespace(models.Model):
     @api.model
     def _fix_name(self, vals):
         if 'name' in vals:
-            vals['name'] = urllib.quote_plus(vals['name'].lower())
+            vals['name'] = urlparse.quote_plus(vals['name'].lower())
         return vals
 
     @api.model
@@ -87,7 +95,7 @@ class Namespace(models.Model):
             ('swagger', '2.0'),
             ('info', {
                 "title": self.name,
-                "version": self.write_date
+                "version": self.write_date.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
             }),
             ('host', parsed_current_host.netloc),
             ('basePath', "/api/v1/%s" % self.name),

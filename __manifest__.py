@@ -7,7 +7,7 @@
     "category": "",
     # "live_test_url": "",
     "images": [],
-    "version": "10.0.1.0.0",
+    "version": "12.0.1.0.0",
     "application": False,
 
     "author": "IT-Projects LLC, Ivan Yelizariev",
@@ -20,7 +20,6 @@
     "depends": [
         "web_tour",
         "web_settings_dashboard",
-        "report",
     ],
     "external_dependencies": {"python": ['bravado_core', 'swagger_spec_validator'], "bin": []},
     "data": [

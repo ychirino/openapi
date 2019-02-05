@@ -6,6 +6,7 @@ from odoo import models, fields
 
 class Log(models.Model):
     _name = 'openapi.log'
+    _description = 'Openapi Log'
     _order = 'id desc'
 
     namespace_id = fields.Many2one('openapi.namespace', 'Integration')

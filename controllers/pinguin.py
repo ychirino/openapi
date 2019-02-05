@@ -29,7 +29,7 @@ import collections
 
 import odoo
 from odoo.service import security
-from odoo.addons.report.controllers.main import ReportController
+from odoo.addons.web.controllers.main import ReportController
 
 try:
     import simplejson as json
@@ -38,6 +38,10 @@ except ImportError:
 
 from odoo.http import request, route as http_route
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+
+import time
+import datetime
+from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 
 ####################################
 # Definition of global error codes #
@@ -181,7 +185,7 @@ def get_data_from_auth_header(header):
     """
     normalized_token = header.replace('Basic ', '').replace('\\n', '').encode('utf-8')
     try:
-        decoded_token_parts = base64.decodestring(normalized_token).split(':')
+        decoded_token_parts = base64.decodestring(normalized_token).split(b':')
     except TypeError:
         raise werkzeug.exceptions.HTTPException(response=error_response(500, 'Invalid header', 'Basic auth header must be valid base64 string'))
 
@@ -852,13 +856,13 @@ def get_dictlist_from_model(model, spec, **kwargs):
     # Do some optimization for subfields
     _prefetch = {}
     for field in spec:
-        if isinstance(field, basestring):
+        if isinstance(field, str):
             continue
         _fld = records._fields[field[0]]
         if _fld.relational:
             _prefetch[_fld.comodel] = records.mapped(field[0]).ids
 
-    for mod, ids in _prefetch.iteritems():
+    for mod, ids in _prefetch.items():
         get_model_for_read(mod).browse(ids).read()
 
     result = []
@@ -924,6 +928,14 @@ def get_dict_from_record(record, spec, include_fields, exclude_fields):
     validate_spec(record, _spec)
 
     for field in _spec:
+        if isinstance(record[field], datetime.date):
+            result[field] = record[field].strftime(DEFAULT_SERVER_DATE_FORMAT)
+            continue
+
+        if isinstance(record[field], datetime.datetime):
+            result[field] = record[field].strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+            continue
+
         if isinstance(field, tuple):
             # It's a 2many (or a 2one specified as a list)
             if isinstance(field[1], list):

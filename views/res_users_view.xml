@@ -14,9 +14,9 @@
                         attrs="{'invisible': [('id', '=', False)]}"
                 />
             </header>
-            <field name="partner_id" position="after">
-                <field name="token" attrs="{'invisible': [('id', '=', False)]}"/>
-            </field>
+            <xpath expr="//group/field[@name='partner_id']" position="after"> <!-- or After -->
+                   <field name="token" attrs="{'invisible': [('id', '=', False)]}"/>
+            </xpath>
             <notebook position="inside">
                 <page string="Allowed Namespaces">
                     <field name="namespace_ids"/>
